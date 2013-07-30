@@ -1,6 +1,7 @@
 <?php
-$serverName = "MOTHERSHIP\SQLEXPRESS"; //serverName\instanceName
-$connectionInfo = array( "Database"=>"ACIMS");
+include 'constants.php';
+$serverName = "$server\$engine"; //serverName\instanceName
+$connectionInfo = array( "Database"=>"$database");
 $conn = sqlsrv_connect( $serverName, $connectionInfo);
 
 if( $conn === false ) {
