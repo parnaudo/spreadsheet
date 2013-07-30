@@ -21,9 +21,6 @@
 </head>
 
 <body>
-<?php 
-$test="['First Name', 'Last Name', 'Address']";
-?>
 
 
  
@@ -35,11 +32,22 @@ $test="['First Name', 'Last Name', 'Address']";
 
           <h2>Facilities Table</h2>
 
-          <p>This page loads and saves data on server. In this example, client side uses <b>$.ajax</b>. Server side uses
-            <b>PHP with MSSQL addon</b>.</p>
+          <p>This page allows you to search and save to the Facilities table of the ACIMS database </p>
 
           <p>
             <button name="load">Load</button>
+            <BR>
+            Search : <input type="text" size="40" name="query" id="query"/>
+  
+             <select name="column" id="column">
+  <option value="Facility_Type">Facility Type</option>
+  <option value="Facility_ID">Facility ID</option>
+  <option value="IWA">IWA</option>
+  <option value="IWL">IWL</option>
+   <option value="status">Status</option>
+</select>
+<BR>
+           <button name="filter">Filter</button>
             <label><input type="checkbox" name="autosave" checked="checked" autocomplete="off"> Autosave</label>
           </p>
 
@@ -66,12 +74,9 @@ $test="['First Name', 'Last Name', 'Address']";
               startRows: 8,
               startCols: 4,
               rowHeaders: true,
-              colHeaders:['Full Name','Facility ID', 'Facility Type', 'State'],
+              colHeaders:['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ,'Shape'],
               columns: [
-                {readOnly: true},
-				{},
-                {},
-                {}
+                {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
               ],
               minSpareCols: 0,
               minSpareRows: 1,
@@ -109,17 +114,90 @@ $test="['First Name', 'Last Name', 'Address']";
                   var data = [], row;
                   for (var i = 0, ilen = res.data.length; i < ilen; i++) {
                     row = [];
-                    row[0] = res.data[i].Full_Name;
-					row[1] = res.data[i].Facility_ID;
-                    row[2] = res.data[i].Facility_Type;
-                    row[3] = res.data[i].State;
-                    data[res.data[i].OBJECTID - 1] = row;
+					row[0] = res.data[i].OBJECTID;
+                    row[1] = res.data[i].Full_Name;
+					row[2] = res.data[i].Facility_ID;
+                    row[3] = res.data[i].Facility_Type;
+                    row[4] = res.data[i].State;
+					row[5] = res.data[i].City;
+					row[6] = res.data[i].ATC_Status;
+                    row[7] = res.data[i].ANS_System_Status;
+                    row[8] = res.data[i].Current_Readiness_Level;
+					row[9] = res.data[i].ATO_Personnel_Accounting;
+					row[10] = res.data[i].Last_Updated_AIRMAC;
+                    row[11] = res.data[i].Last_Updated_Source;
+					row[12] = res.data[i].General_Comments;
+					row[13] = res.data[i].Airport_Ops_Status_Comments;
+                    row[14] = res.data[i].ATC_Status_Comments;
+                    row[15] = res.data[i].ANS_Sys_Status_Comments;
+					row[16] = res.data[i].ATO_Pers_Status_Comments;
+                    row[17] = res.data[i].Overlying_ATC_Facility;
+                    row[18] = res.data[i].ATO_Terminal_District_Office;
+					row[19] = res.data[i].Latitude;
+					row[20] = res.data[i].Longitude;
+                    row[21] = res.data[i].Status;
+                    row[22] = res.data[i].IWA;
+					row[23] = res.data[i].IWL;
+					row[24] = res.data[i].Shape;
+                    data[i] = row;
                   }
                   $console.text('Data loaded');
                   handsontable.loadData(data);
                 }
               });
-            }).click(); //execute immediately
+            }).click(); //  execute immediately
+            $parent.find('button[name=filter]').click(function () {
+			  var query = $('#query').val();
+			  var column = $('#column').val();
+              $.ajax({
+                url: "php/filter.php",
+                data: {query:query, column:column}, //returns all cells' data
+                dataType: 'json',
+                type: 'POST',
+                success: function (res) {
+                                 var data = [], row;
+                  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+                    row = [];
+					row[0] = res.data[i].OBJECTID;
+                    row[1] = res.data[i].Full_Name;
+					row[2] = res.data[i].Facility_ID;
+                    row[3] = res.data[i].Facility_Type;
+                    row[4] = res.data[i].State;
+					row[5] = res.data[i].City;
+					row[6] = res.data[i].ATC_Status;
+                    row[7] = res.data[i].ANS_System_Status;
+                    row[8] = res.data[i].Current_Readiness_Level;
+					row[9] = res.data[i].ATO_Personnel_Accounting;
+					row[10] = res.data[i].Last_Updated_AIRMAC;
+                    row[11] = res.data[i].Last_Updated_Source;
+					row[12] = res.data[i].General_Comments;
+					row[13] = res.data[i].Airport_Ops_Status_Comments;
+                    row[14] = res.data[i].ATC_Status_Comments;
+                    row[15] = res.data[i].ANS_Sys_Status_Comments;
+					row[16] = res.data[i].ATO_Pers_Status_Comments;
+                    row[17] = res.data[i].Overlying_ATC_Facility;
+                    row[18] = res.data[i].ATO_Terminal_District_Office;
+					row[19] = res.data[i].Latitude;
+					row[20] = res.data[i].Longitude;
+                    row[21] = res.data[i].Status;
+                    row[22] = res.data[i].IWA;
+					row[23] = res.data[i].IWL;
+					row[24] = res.data[i].Shape;
+                    data[i] = row;
+                  }
+                  $console.text('Displaying Results');
+                  handsontable.loadData(data);
+				
+				
+
+                },
+                error: function () {
+				
+                  $console.text('No Results Found');
+                }
+				
+              });
+            });
 
             $parent.find('button[name=save]').click(function () {
               $.ajax({

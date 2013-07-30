@@ -7,8 +7,10 @@ $conn = sqlsrv_connect( $serverName, $connectionInfo);
 if( $conn === false ) {
     die( print_r( sqlsrv_errors(), true));
 }
+$value=$_POST['query'];
+$column=$_POST['column'];
+$sql = "SELECT top 100 * FROM FACILITIES where $column like '%$value%'";
 
-$sql = "SELECT top 100 * FROM FACILITIES";
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {
     die( print_r( sqlsrv_errors(), true) );
