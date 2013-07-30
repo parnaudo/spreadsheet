@@ -72,9 +72,9 @@
               startRows: 8,
               startCols: 4,
               rowHeaders: true,
-              colHeaders:['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ,'Shape'],
+              colHeaders:['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ],
               columns: [
-                {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
+                {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
               ],
               minSpareCols: 0,
               minSpareRows: 1,
@@ -137,7 +137,7 @@
                     row[21] = res.data[i].Status;
                     row[22] = res.data[i].IWA;
 					row[23] = res.data[i].IWL;
-					row[24] = res.data[i].Shape;
+					
                     data[i] = row;
                   }
                   $console.text('Data loaded');
@@ -181,7 +181,7 @@
                     row[21] = res.data[i].Status;
                     row[22] = res.data[i].IWA;
 					row[23] = res.data[i].IWL;
-					row[24] = res.data[i].Shape;
+					
                     data[i] = row;
                   }
                   $console.text('Displaying Results');
