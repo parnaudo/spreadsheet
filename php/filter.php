@@ -1,15 +1,13 @@
 <?php 
 include 'constants.php';
-$serverName = $server.'\\'.$engine; //serverName\instanceName
-$connectionInfo = array( "Database"=>"$database");
-$conn = sqlsrv_connect( $serverName, $connectionInfo);
+
 
 if( $conn === false ) {
     die( print_r( sqlsrv_errors(), true));
 }
 $value=$_POST['query'];
 $column=$_POST['column'];
-$sql = "SELECT top 100 * FROM FACILITIES where $column like '%$value%'";
+$sql = "SELECT top 200 * FROM FACILITIES where $column like '%$value%'";
 
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {

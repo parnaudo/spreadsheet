@@ -30,13 +30,12 @@
 
 
 
-          <h2>Facilities Table</h2>
+          <h2>Facilities</h2>
 
           <p>This page allows you to search and save to the Facilities table of the ACIMS database </p>
 
           <p>
-            <button name="load">Load</button>
-            <BR>
+
             Search : <input type="text" size="40" name="query" id="query"/>
   
              <select name="column" id="column">
@@ -48,17 +47,15 @@
 </select>
 <BR>
            <button name="filter">Filter</button>
-            <label><input type="checkbox" name="autosave" checked="checked" autocomplete="off"> Autosave</label>
-          </p>
-
-          <div id="exampleConsole" class="console">Click "Load" to load data from server</div>
+            <label><input type="checkbox" name="autosave" checked="checked" disabled="disabled" autocomplete="off"> Autosave</label>
+            <BR>
+            <button style="display:none" name="load">Load</button>
+            <BR>
+          <div id="console" class="console">Click "Load" to load data from server</div>
 
           <div id="display"></div>
 
-          <p>
-            <button name="dump" data-dump="#display" title="Prints current data source to Firebug/Chrome Dev Tools">
-              Dump data to console
-            </button>
+     
           </p>
         </div>
       </div>
@@ -66,8 +63,9 @@
 
         <div class="pad">
           <script>
+
             var $container = $("#display");
-            var $console = $("#exampleConsole");
+            var $console = $("#console");
             var $parent = $container.parent();
             var autosaveNotification;
             $container.handsontable({
@@ -93,6 +91,7 @@
                     dataType: "json",
                     type: "POST",
                     data: {changes: change}, //contains changed cells' data
+					afterChange:$console.text('Changes saved'),
                     success: function () {
                       $console.text('Autosaved (' + change.length + ' cell' + (change.length > 1 ? 's' : '') + ')');
                       autosaveNotification = setTimeout(function () {
@@ -206,12 +205,8 @@
                 dataType: 'json',
                 type: 'POST',
                 success: function (res) {
-                  if (res.result === 'ok') {
-                    $console.text('Data saved');
-                  }
-                  else {
-                    $console.text('Save error');
-                  }
+			      $console.text('Data saved');
+ 
                 },
                 error: function () {
                   $console.text('Save error');

@@ -1,8 +1,5 @@
 <?php 
 include 'constants.php';
-$serverName = $server.'\\'.$engine; //serverName\instanceName
-$connectionInfo = array( "Database"=>"$database");
-$conn = sqlsrv_connect( $serverName, $connectionInfo);
 
 if( $conn === false ) {
     die( print_r( sqlsrv_errors(), true));
