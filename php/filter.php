@@ -7,7 +7,7 @@ if( $conn === false ) {
 }
 $value=$_POST['query'];
 $column=$_POST['column'];
-$sql = "SELECT top 200 * FROM FACILITIES where $column like '%$value%'";
+$sql = "SELECT * FROM FACILITIES where $column like '%$value%'";
 
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {

@@ -34,20 +34,19 @@
 
           <p>This page allows you to search and save to the Facilities table of the ACIMS database </p>
 
-          <p>
-
-            Search : <input type="text" size="40" name="query" id="query"/>
-  
-             <select name="column" id="column">
+          <p>             <select name="column" id="column">
   <option value="Facility_Type">Facility Type</option>
   <option value="Facility_ID">Facility ID</option>
   <option value="IWA">IWA</option>
   <option value="IWL">IWL</option>
    <option value="status">Status</option>
 </select>
+
+            Search : <input type="text" size="40" name="query" id="query"/>
+  
+
 <BR>
-           <button name="filter">Filter</button>
-            <label><input type="checkbox" name="autosave" checked="checked" disabled="disabled" autocomplete="off"> Autosave</label>
+            <label><input  style="display:none" type="checkbox" name="autosave" checked="checked" disabled="disabled" autocomplete="off"> </label>
             <BR>
             <button style="display:none" name="load">Load</button>
             <BR>
@@ -60,6 +59,7 @@
         </div>
       </div>
 
+</div>
 
         <div class="pad">
           <script>
@@ -69,9 +69,15 @@
             var $parent = $container.parent();
             var autosaveNotification;
             $container.handsontable({
+				
               startRows: 8,
               startCols: 4,
-              rowHeaders: true,
+               width: 1000,
+			  height: 400,
+			  scrollH: 'auto',
+			  scrollV: 'auto',
+			  stretchH: 'hybrid',
+			  rowHeaders: true,
               colHeaders:['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ],
               columns: [
                 {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
@@ -145,7 +151,8 @@
                 }
               });
             }).click(); //  execute immediately
-            $parent.find('button[name=filter]').click(function () {
+			// $('#query').blur
+           $(document).keypress(function () {
 			  var query = $('#query').val();
 			  var column = $('#column').val();
               $.ajax({
