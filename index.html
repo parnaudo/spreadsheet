@@ -96,7 +96,7 @@
                     url: "php/save.php",
                     dataType: "json",
                     type: "POST",
-                    data: {changes: change}, //contains changed cells' data
+                    data: {changes: change,objectid: $("#display").handsontable('getDataAtCell', change[0][0], 0)}, //contains changed cells' data
 					afterChange:$console.text('Changes saved'),
                     success: function () {
                       $console.text('Autosaved (' + change.length + ' cell' + (change.length > 1 ? 's' : '') + ')');

@@ -9,12 +9,13 @@ require_once('functions.php');
   if (isset($_POST['changes']) && $_POST['changes']) {
 
   	 foreach ($_POST['changes'] as $change) {
-	  $rowId  = $change[0] + 1;
+	  $rowId  = $_POST['objectid'];
       $colId  = $change[1];
       $newVal = $change[3];
 	  echo "row $rowId column $colId will be changed to $newVal";
 	 }
   }
+  
   $colMap = array(
   	0 => 'OBJECTID',
     1 => 'Full_Name',
