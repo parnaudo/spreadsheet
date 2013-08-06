@@ -16,7 +16,7 @@
   <script src="js/samples.js"></script>
   <script src="/highlight/highlight.pack.js"></script>
   <link rel="stylesheet" media="screen" href="js/highlight/styles/github.css">
-
+  <script src="js/ga.js"></script>
  
 </head>
 
@@ -48,7 +48,7 @@
 <BR>
             <label><input  style="display:none" type="checkbox" name="autosave" checked="checked" disabled="disabled" autocomplete="off"> </label>
             <BR>
-            <button style="display:none" name="load">Load</button>
+            <button style="display:inline" name="load">Reset</button>
             <BR>
           <div id="console" class="console">Click "Load" to load data from server</div>
 
@@ -63,13 +63,24 @@
 
         <div class="pad">
           <script>
-
+ 			function firstRowRenderer(instance, td, row, col, prop, value, cellProperties) {
+              Handsontable.TextCell.renderer.apply(this, arguments);
+              td.style.fontWeight = 'bold';
+              td.style.color = 'green';
+              td.style.background = '#CEC';
+            }
+			var greenRenderer = function (instance, td, row, col, prop, value, cellProperties) {
+  Handsontable.TextCell.renderer.apply(this, arguments);
+  $(td).css({
+    background: 'green'
+  });
+};
             var $container = $("#display");
             var $console = $("#console");
             var $parent = $container.parent();
             var autosaveNotification;
             $container.handsontable({
-				
+
               startRows: 8,
               startCols: 4,
                width: 1000,
@@ -82,17 +93,33 @@
               columns: [
                 {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
               ],
+
               minSpareCols: 0,
               minSpareRows: 1,
               contextMenu: true,
 			  columnSorting: true,	
+			 afterLoadData: function(){
+					           row=this.getDataAtCol(23);
+                               test=row.indexOf(9);
+                     alert(test);
+               var cellProperties = {};
+               if (test>=0) {
+       
+                 cellProperties.renderer = firstRowRenderer; //uses function directly
+               }
+
+ 			  },
               afterChange: function (change, source) {
                 if (source === 'loadData') {
+				  
                   return; //don't save this change
                 }
+
                 if ($parent.find('input[name=autosave]').is(':checked')) {
                   clearTimeout(autosaveNotification);
-                  $.ajax({
+                 
+				 
+				  $.ajax({
                     url: "php/save.php",
                     dataType: "json",
                     type: "POST",
@@ -104,10 +131,14 @@
                         $console.text('Changes will be autosaved');
                       }, 1000);
                     }
+					
                   });
-                }
+                
+				}
               }
+			  
             });
+
             var handsontable = $container.data('handsontable');
 
             $parent.find('button[name=load]').click(function () {
@@ -146,9 +177,11 @@
 					
                     data[i] = row;
                   }
+	
                   $console.text('Data loaded');
                   handsontable.loadData(data);
                 }
+				
               });
             }).click(); //  execute immediately
 			// $('#query').blur
@@ -160,6 +193,7 @@
                 data: {query:query, column:column}, //returns all cells' data
                 dataType: 'json',
                 type: 'POST',
+ 
                 success: function (res) {
                                  var data = [], row;
                   for (var i = 0, ilen = res.data.length; i < ilen; i++) {

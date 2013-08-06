@@ -5,7 +5,7 @@ if( $conn === false ) {
     die( print_r( sqlsrv_errors(), true));
 }
 
-$sql = "SELECT  * FROM FACILITIES";
+$sql = "SELECT top 2 * FROM FACILITIES";
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {
     die( print_r( sqlsrv_errors(), true) );
