@@ -63,18 +63,27 @@
 
         <div class="pad">
           <script>
- 			function firstRowRenderer(instance, td, row, col, prop, value, cellProperties) {
-              Handsontable.TextCell.renderer.apply(this, arguments);
-              td.style.fontWeight = 'bold';
-              td.style.color = 'green';
-              td.style.background = '#CEC';
-            }
-			var greenRenderer = function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.TextCell.renderer.apply(this, arguments);
-  $(td).css({
-    background: 'green'
-  });
-};
+  function whiteRenderer(instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.TextCell.renderer.apply(this, arguments);
+    td.style.background = 'white';
+  }
+
+  function greenRenderer (instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.TextCell.renderer.apply(this, arguments);
+      //alert($("#display").handsontable("getDataAtCell", row, 2));
+      if (parseInt($("#display").handsontable("getDataAtCell", row, 21), 10)===1) {
+        td.style.background = '#CEC';
+      }
+      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===2) {
+        td.style.background = '#feffbd';
+      }
+      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===3) {
+        td.style.background = '#f88888';
+      }
+      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===0) {
+        td.style.background = '#a3a3a3';
+      }
+  }
             var $container = $("#display");
             var $console = $("#console");
             var $parent = $container.parent();
@@ -93,22 +102,23 @@
               columns: [
                 {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
               ],
-
+ cells: function(rows, cols, props) {
+        col=$container.handsontable('getDataAtCol', 23);
+        val=col[rows];
+        var cellProperties = {};
+        if (parseInt(val, 10) ===1) {
+          cellProperties.renderer = greenRenderer; //uses function directly
+        }
+        else {
+          cellProperties.renderer = whiteRenderer;
+        }
+      return cellProperties;
+    },
               minSpareCols: 0,
               minSpareRows: 1,
               contextMenu: true,
 			  columnSorting: true,	
-			 afterLoadData: function(){
-					           row=this.getDataAtCol(23);
-                               test=row.indexOf(9);
-                     alert(test);
-               var cellProperties = {};
-               if (test>=0) {
-       
-                 cellProperties.renderer = firstRowRenderer; //uses function directly
-               }
-
- 			  },
+	
               afterChange: function (change, source) {
                 if (source === 'loadData') {
 				  
