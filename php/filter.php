@@ -7,8 +7,8 @@ if( $conn === false ) {
 }
 $value=$_POST['query'];
 $column=$_POST['column'];
-$sql = "SELECT * FROM FACILITIES where $column like '%$value%'";
-
+$sqltable=$_POST['sqltable'];
+$sql = "SELECT top 1 * FROM $sqltable where $column like '%$value%'";
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {
     die( print_r( sqlsrv_errors(), true) );
@@ -17,7 +17,7 @@ if( $stmt === false) {
 $test=array();
 
 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)){
-	$row['State']='';
+	$row['Shape']='';
 	$data[]=$row;	  
 
 }

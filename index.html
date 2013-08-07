@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <title>FAA Table Updater</title>
+  <title>Map Augmentation Table</title>
 
 
   <script data-jsfiddle="common" src="lib/jquery.min.js"></script>
@@ -30,16 +30,18 @@
 
 
 
-          <h2>Facilities</h2>
+          <h2>Map Augmentation Table</h2>
 
-          <p>This page allows you to search and save to the Facilities table of the ACIMS database </p>
-
+          <p>This app allows dynamic updating to tables in the ACIMS database </p>
+			<select name="sqltable" id="sqltable" class="sqltable">
+ 	 <option value="FACILITIES">Facilities</option>
+ 	 <option value="EQUIPMENT">Equipment</option>
+ 	 <option value="PUBLIC_USE_AIRPORTS">Public Use Airports</option>
+ 	 <option value="PRIVATE_USE_AIRPORTS">Private Use Airports</option>
+  	 <option value="OTHER_AVIATION_PORTS">Other Aviation Ports</option>
+		</select>
+                    <button style="display:inline" name="load">Load Table</button>
           <p>             <select name="column" id="column">
-  <option value="Facility_Type">Facility Type</option>
-  <option value="Facility_ID">Facility ID</option>
-  <option value="IWA">IWA</option>
-  <option value="IWL">IWL</option>
-   <option value="status">Status</option>
 </select>
 
             Search : <input type="text" size="40" name="query" id="query"/>
@@ -48,7 +50,7 @@
 <BR>
             <label><input  style="display:none" type="checkbox" name="autosave" checked="checked" disabled="disabled" autocomplete="off"> </label>
             <BR>
-            <button style="display:inline" name="load">Reset</button>
+
             <BR>
           <div id="console" class="console">Click "Load" to load data from server</div>
 
@@ -70,26 +72,47 @@
 
   function greenRenderer (instance, td, row, col, prop, value, cellProperties) {
     Handsontable.TextCell.renderer.apply(this, arguments);
-      //alert($("#display").handsontable("getDataAtCell", row, 2));
-      if (parseInt($("#display").handsontable("getDataAtCell", row, 21), 10)===1) {
+	  	var sqltable = $('#sqltable').val();
+      //Get status column number for dynamic coloring, hardcoded atm, could definitely pull from DB if there was more time
+	  	if(sqltable=='FACILITIES'){
+			var status=21;
+		}
+		else if(sqltable=='EQUIPMENT'){
+			var status=13;
+		}
+		else{
+			var status=16;
+		}
+      if (parseInt($("#display").handsontable("getDataAtCell", row, status), 10)===1) {
         td.style.background = '#CEC';
       }
-      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===2) {
+      if (parseInt($container.handsontable('getDataAtCell', row, status), 10)===2) {
         td.style.background = '#feffbd';
       }
-      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===3) {
+      if (parseInt($container.handsontable('getDataAtCell', row, status), 10)===3) {
         td.style.background = '#f88888';
       }
-      if (parseInt($container.handsontable('getDataAtCell', row, 21), 10)===0) {
+      if (parseInt($container.handsontable('getDataAtCell', row, status), 10)===0) {
         td.style.background = '#a3a3a3';
       }
-  }
+  }			
+  
+ 			 //original renders default to facilities tables
+  			var sqltable = $('#sqltable').val();
+			var filters = ' ["Facility_Type","Facility_ID","IWA","IWL","Status"]' ;
+			var parsedjson = $.parseJSON(filters);
+			$.each( parsedjson , function( index, item ) {
+          		 $("<option/>",{value:item,text:item}).appendTo("#column");
+       		 });
+  			var headers=['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ];
+			 var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{},{},{},{},{},{},{},{readOnly: true},{},{},{},{readOnly: true},{},{},{},{},{},];
             var $container = $("#display");
             var $console = $("#console");
+	
             var $parent = $container.parent();
             var autosaveNotification;
             $container.handsontable({
-
+  			 
               startRows: 8,
               startCols: 4,
                width: 1000,
@@ -98,22 +121,32 @@
 			  scrollV: 'auto',
 			  stretchH: 'hybrid',
 			  rowHeaders: true,
-              colHeaders:['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ],
-              columns: [
-                {readOnly: true},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},	
-              ],
- cells: function(rows, cols, props) {
-        col=$container.handsontable('getDataAtCol', 23);
-        val=col[rows];
-        var cellProperties = {};
-        if (parseInt(val, 10) ===1) {
-          cellProperties.renderer = greenRenderer; //uses function directly
-        }
-        else {
-          cellProperties.renderer = whiteRenderer;
-        }
-      return cellProperties;
-    },
+              colHeaders:headers,
+              columns:columns,
+ 		cells: function(rows, cols, props) {
+			//first check to see where iwl column is for dynamic row coloring
+		var sqltable = $('#sqltable').val();	
+			if(sqltable=='FACILITIES'){
+				var iwl=23;
+			}
+			else if(sqltable=='EQUIPMENT'){
+				var iwl=15;
+			}
+			else{
+				var iwl=18;
+			}
+			col=$container.handsontable('getDataAtCol', iwl);
+			val=col[rows];
+	
+			var cellProperties = {};
+			if (parseInt(val, 10) ===1) {
+			  cellProperties.renderer = greenRenderer; //uses function directly
+			}
+			else {
+			  cellProperties.renderer = whiteRenderer;
+			}
+		  return cellProperties;
+		},
               minSpareCols: 0,
               minSpareRows: 1,
               contextMenu: true,
@@ -124,16 +157,16 @@
 				  
                   return; //don't save this change
                 }
-
+//this is the code that executes to autosave everything
                 if ($parent.find('input[name=autosave]').is(':checked')) {
                   clearTimeout(autosaveNotification);
                  
-				 
+				   var sqltable = $('#sqltable').val();
 				  $.ajax({
                     url: "php/save.php",
                     dataType: "json",
                     type: "POST",
-                    data: {changes: change,objectid: $("#display").handsontable('getDataAtCell', change[0][0], 0)}, //contains changed cells' data
+                    data: {changes: change,objectid: $("#display").handsontable('getDataAtCell', change[0][0], 0),sqltable:sqltable}, //contains changed cells' data
 					afterChange:$console.text('Changes saved'),
                     success: function () {
                       $console.text('Autosaved (' + change.length + ' cell' + (change.length > 1 ? 's' : '') + ')');
@@ -151,91 +184,240 @@
 
             var handsontable = $container.data('handsontable');
 
-            $parent.find('button[name=load]').click(function () {
+			$parent.find('button[name=load]').click(function () {
+			  var sqltable = $('#sqltable').val();	 
+			//lets find our filter selections and load them  
+			if(sqltable=="FACILITIES"){
+			  var filters = ' ["Facility_Type","Facility_ID","IWA","IWL","status"]' ;
+			}
+			else if(sqltable=="EQUIPMENT"){
+			  var filters = ' [" Fac_Type", "Sub_Type", "Fac_Ident", "City", "State", "Notes", "Status", "IWA", "IWL"]' ;			  
+			}
+			else{
+			  var filters = ' ["Location_ID", "State", "City", "Official_Name", "ICAO_ID", "Notes", "Hub_Type", "Part_139", "DOD", "Status", "IWA", "IWL" ]' ;				
+			}
+			var parsedjson = $.parseJSON(filters);
+			//dump our selectors
+			$("#column").empty();
+			$.each( parsedjson , function( index, item ) {
+          		 $("<option/>",{value:item,text:item}).appendTo("#column");
+       		 });
               $.ajax({
                 url: "php/load.php",
+				data: {sqltable:sqltable},
                 dataType: 'json',
-                type: 'GET',
+                type: 'POST',
                 success: function (res) {
-                  var data = [], row;
-                  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
-                    row = [];
-					row[0] = res.data[i].OBJECTID;
-                    row[1] = res.data[i].Full_Name;
-					row[2] = res.data[i].Facility_ID;
-                    row[3] = res.data[i].Facility_Type;
-                    row[4] = res.data[i].State;
-					row[5] = res.data[i].City;
-					row[6] = res.data[i].ATC_Status;
-                    row[7] = res.data[i].ANS_System_Status;
-                    row[8] = res.data[i].Current_Readiness_Level;
-					row[9] = res.data[i].ATO_Personnel_Accounting;
-					row[10] = res.data[i].Last_Updated_AIRMAC;
-                    row[11] = res.data[i].Last_Updated_Source;
-					row[12] = res.data[i].General_Comments;
-					row[13] = res.data[i].Airport_Ops_Status_Comments;
-                    row[14] = res.data[i].ATC_Status_Comments;
-                    row[15] = res.data[i].ANS_Sys_Status_Comments;
-					row[16] = res.data[i].ATO_Pers_Status_Comments;
-                    row[17] = res.data[i].Overlying_ATC_Facility;
-                    row[18] = res.data[i].ATO_Terminal_District_Office;
-					row[19] = res.data[i].Latitude;
-					row[20] = res.data[i].Longitude;
-                    row[21] = res.data[i].Status;
-                    row[22] = res.data[i].IWA;
-					row[23] = res.data[i].IWL;
-					
-                    data[i] = row;
-                  }
-	
+					//create rows,headers and colums dependant on what table is called
+				  if(sqltable=="FACILITIES"){
+					  var headers=['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ];	
+					  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{},{},{},{},{},{},{},{readOnly: true},{},{},{},{readOnly: true},{},{},{},{},{},];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Full_Name;
+						row[2] = res.data[i].Facility_ID;
+						row[3] = res.data[i].Facility_Type;
+						row[4] = res.data[i].State;
+						row[5] = res.data[i].City;
+						row[6] = res.data[i].ATC_Status;
+						row[7] = res.data[i].ANS_System_Status;
+						row[8] = res.data[i].Current_Readiness_Level;
+						row[9] = res.data[i].ATO_Personnel_Accounting;
+						row[10] = res.data[i].Last_Updated_AIRMAC;
+						row[11] = res.data[i].Last_Updated_Source;
+						row[12] = res.data[i].General_Comments;
+						row[13] = res.data[i].Airport_Ops_Status_Comments;
+						row[14] = res.data[i].ATC_Status_Comments;
+						row[15] = res.data[i].ANS_Sys_Status_Comments;
+						row[16] = res.data[i].ATO_Pers_Status_Comments;
+						row[17] = res.data[i].Overlying_ATC_Facility;
+						row[18] = res.data[i].ATO_Terminal_District_Office;
+						row[19] = res.data[i].Latitude;
+						row[20] = res.data[i].Longitude;
+						row[21] = res.data[i].Status;
+						row[22] = res.data[i].IWA;
+						row[23] = res.data[i].IWL;
+						
+						data[i] = row;
+					  }
+				  }
+				  else if(sqltable=="EQUIPMENT"){
+					  var headers=['Object ID','Fac_Type','Sub_Type', 'Fac_Ident', 'City','State','Controlling_Ident','Runway','Power_Code','Decode_Power','Notes','Latitude','Longitude','Status','IWA','IWL' ];
+				 	  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{readOnly: true},{readOnly: true},{},{},{},];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Fac_Type;
+						row[2] = res.data[i].Sub_Type;
+						row[3] = res.data[i].Fac_Ident;
+						row[4] = res.data[i].City;
+						row[5] = res.data[i].State;
+						row[6] = res.data[i].Controlling_Ident;
+						row[7] = res.data[i].Runway;
+						row[8] = res.data[i].Power_Code;
+						row[9] = res.data[i].Decode_Power;
+						row[10] = res.data[i].Notes;
+						row[11] = res.data[i].Latitude;
+						row[12] = res.data[i].Longitude;
+						row[13] = res.data[i].Status;
+						row[14] = res.data[i].IWA;
+						row[15] = res.data[i].IWL;
+						
+						data[i] = row;
+					  }
+					  
+					  
+					  
+				  }
+				  else{
+					 					  var headers=['Object ID','Type_','Location_ID', 'State', 'City','Official_Name','Ownership','Use_','ICAO_ID','Notes','Airport_Classification','Hub_Type','Part_139','DOD','Latitude','Longitude','Status','IWA','IWL' ];
+				 	  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{},{}];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Type_;
+						row[2] = res.data[i].Location_ID;
+						row[3] = res.data[i].State;
+						row[4] = res.data[i].City;
+						row[5] = res.data[i].Official_Name;
+						row[6] = res.data[i].Ownership;
+						row[7] = res.data[i].Use_;
+						row[8] = res.data[i].ICAO_ID;
+						row[9] = res.data[i].Notes;
+						row[10] = res.data[i].Airport_Classification;
+						row[11] = res.data[i].Hub_Type;
+						row[12] = res.data[i].Part_139;
+						row[13] = res.data[i].DOD;
+						row[14] = res.data[i].Latitude;
+						row[15] = res.data[i].Longitude;
+						row[16] = res.data[i].Status;
+						row[17] = res.data[i].IWA;
+						row[18] = res.data[i].IWL;
+						data[i] = row;
+					  }
+					  
+				  }
                   $console.text('Data loaded');
+				  //need to re-render the table to get the changes to columns and column headers to show up
+				  handsontable.updateSettings({ colHeaders: headers,columns:columns });
+				  handsontable.render;
                   handsontable.loadData(data);
+
                 }
 				
               });
-            }).click(); //  execute immediately
-			// $('#query').blur
-           $(document).keypress(function () {
+            }).click(); 
+
+           $('#query').keypress(function () {
 			  var query = $('#query').val();
 			  var column = $('#column').val();
+			  var sqltable = $('#sqltable').val();	 
               $.ajax({
                 url: "php/filter.php",
-                data: {query:query, column:column}, //returns all cells' data
+                data: {query:query, column:column,sqltable:sqltable}, //returns all cells' data
                 dataType: 'json',
                 type: 'POST',
  
                 success: function (res) {
-                                 var data = [], row;
-                  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
-                    row = [];
-					row[0] = res.data[i].OBJECTID;
-                    row[1] = res.data[i].Full_Name;
-					row[2] = res.data[i].Facility_ID;
-                    row[3] = res.data[i].Facility_Type;
-                    row[4] = res.data[i].State;
-					row[5] = res.data[i].City;
-					row[6] = res.data[i].ATC_Status;
-                    row[7] = res.data[i].ANS_System_Status;
-                    row[8] = res.data[i].Current_Readiness_Level;
-					row[9] = res.data[i].ATO_Personnel_Accounting;
-					row[10] = res.data[i].Last_Updated_AIRMAC;
-                    row[11] = res.data[i].Last_Updated_Source;
-					row[12] = res.data[i].General_Comments;
-					row[13] = res.data[i].Airport_Ops_Status_Comments;
-                    row[14] = res.data[i].ATC_Status_Comments;
-                    row[15] = res.data[i].ANS_Sys_Status_Comments;
-					row[16] = res.data[i].ATO_Pers_Status_Comments;
-                    row[17] = res.data[i].Overlying_ATC_Facility;
-                    row[18] = res.data[i].ATO_Terminal_District_Office;
-					row[19] = res.data[i].Latitude;
-					row[20] = res.data[i].Longitude;
-                    row[21] = res.data[i].Status;
-                    row[22] = res.data[i].IWA;
-					row[23] = res.data[i].IWL;
-					
-                    data[i] = row;
-                  }
+					//same as load function, just for filter
+				  if(sqltable=="FACILITIES"){
+					  var headers=['Object ID','Full Name','Facility ID', 'Facility Type', 'State','City','ATC Status','ANS_System_Status','Current_Readiness_Level','ATO_Personnel_Accounting','Last_Updated_AIRMAC','Last_Updated_Source','General_Comments','Airport_Ops_Status_Comments','ATC_Status_Comments','ANS_Sys_Status_Comments','ATO_Pers_Status_Comments','Overlying_ATC_Facility','ATO_Terminal_District_Office','Latitude','Longitude','Status','IWA','IWL' ];	
+					  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{},{},{},{},{},{},{},{readOnly: true},{},{},{},{readOnly: true},{},{},{},{},{},];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Full_Name;
+						row[2] = res.data[i].Facility_ID;
+						row[3] = res.data[i].Facility_Type;
+						row[4] = res.data[i].State;
+						row[5] = res.data[i].City;
+						row[6] = res.data[i].ATC_Status;
+						row[7] = res.data[i].ANS_System_Status;
+						row[8] = res.data[i].Current_Readiness_Level;
+						row[9] = res.data[i].ATO_Personnel_Accounting;
+						row[10] = res.data[i].Last_Updated_AIRMAC;
+						row[11] = res.data[i].Last_Updated_Source;
+						row[12] = res.data[i].General_Comments;
+						row[13] = res.data[i].Airport_Ops_Status_Comments;
+						row[14] = res.data[i].ATC_Status_Comments;
+						row[15] = res.data[i].ANS_Sys_Status_Comments;
+						row[16] = res.data[i].ATO_Pers_Status_Comments;
+						row[17] = res.data[i].Overlying_ATC_Facility;
+						row[18] = res.data[i].ATO_Terminal_District_Office;
+						row[19] = res.data[i].Latitude;
+						row[20] = res.data[i].Longitude;
+						row[21] = res.data[i].Status;
+						row[22] = res.data[i].IWA;
+						row[23] = res.data[i].IWL;
+						
+						data[i] = row;
+					  }
+				  }
+				  else if(sqltable=="EQUIPMENT"){
+					  var headers=['Object ID','Fac_Type','Sub_Type', 'Fac_Ident', 'City','State','Controlling_Ident','Runway','Power_Code','Decode_Power','Notes','Latitude','Longitude','Status','IWA','IWL' ];
+				 	  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{readOnly: true},{readOnly: true},{},{},{},];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Fac_Type;
+						row[2] = res.data[i].Sub_Type;
+						row[3] = res.data[i].Fac_Ident;
+						row[4] = res.data[i].City;
+						row[5] = res.data[i].State;
+						row[6] = res.data[i].Controlling_Ident;
+						row[7] = res.data[i].Runway;
+						row[8] = res.data[i].Power_Code;
+						row[9] = res.data[i].Decode_Power;
+						row[10] = res.data[i].Notes;
+						row[11] = res.data[i].Latitude;
+						row[12] = res.data[i].Longitude;
+						row[13] = res.data[i].Status;
+						row[14] = res.data[i].IWA;
+						row[15] = res.data[i].IWL;
+						
+						data[i] = row;
+					  }
+					  
+					  
+					  
+				  }
+				  else{
+					  var headers=['Object ID','Type_','Location_ID', 'State', 'City','Official_Name','Ownership','Use_','ICAO_ID','Notes','Airport_Classification','Hub_Type','Part_139','DOD','Latitude','Longitude','Status','IWA','IWL' ];
+				 	  var columns=[{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{readOnly: true},{},{},{}];
+					  var data = [], row;
+					  for (var i = 0, ilen = res.data.length; i < ilen; i++) {
+						row = [];
+						row[0] = res.data[i].OBJECTID;
+						row[1] = res.data[i].Type_;
+						row[2] = res.data[i].Location_ID;
+						row[3] = res.data[i].State;
+						row[4] = res.data[i].City;
+						row[5] = res.data[i].Official_Name;
+						row[6] = res.data[i].Ownership;
+						row[7] = res.data[i].Use_;
+						row[8] = res.data[i].ICAO_ID;
+						row[9] = res.data[i].Notes;
+						row[10] = res.data[i].Airport_Classification;
+						row[11] = res.data[i].Hub_Type;
+						row[12] = res.data[i].Part_139;
+						row[13] = res.data[i].DOD;
+						row[14] = res.data[i].Latitude;
+						row[15] = res.data[i].Longitude;
+						row[16] = res.data[i].Status;
+						row[17] = res.data[i].IWA;
+						row[18] = res.data[i].IWL;
+						data[i] = row;
+					  }
+					  					  
+				  }
                   $console.text('Displaying Results');
+				 
                   handsontable.loadData(data);
 				
 				
@@ -250,9 +432,10 @@
             });
 
             $parent.find('button[name=save]').click(function () {
+			  var sqltable = $('#sqltable').val();	 	
               $.ajax({
                 url: "php/save.php",
-                data: {"data": handsontable.getData()}, //returns all cells' data
+                data: {"data": handsontable.getData(),sqltable:sqltable}, //returns all cells' data
                 dataType: 'json',
                 type: 'POST',
                 success: function (res) {

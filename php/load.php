@@ -4,8 +4,8 @@ include 'constants.php';
 if( $conn === false ) {
     die( print_r( sqlsrv_errors(), true));
 }
-
-$sql = "SELECT  * FROM FACILITIES";
+$table=$_POST['sqltable'];
+$sql = "SELECT top 2000 * FROM $table";
 $stmt = sqlsrv_query( $conn, $sql );
 if( $stmt === false) {
     die( print_r( sqlsrv_errors(), true) );
@@ -14,7 +14,7 @@ if( $stmt === false) {
 $test=array();
 
 while( $row = sqlsrv_fetch_array( $stmt, SQLSRV_FETCH_ASSOC)){
-	$row['State']='';
+	$row['Shape']='';
 	$data[]=$row;	  
 
 }
